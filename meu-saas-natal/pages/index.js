@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Copy, Check, Download, Sparkles } from 'lucide-react';
 
 export default function NatalSaaS() {
   const [name, setName] = useState('');
@@ -6,11 +7,25 @@ export default function NatalSaaS() {
   const [fmt, setFmt] = useState('sq');
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
+  const [message, setMessage] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  // Função para gerar a legenda automática
+  const getGreeting = (brandName, artStyle) => {
+    const greetings = {
+      classic: `🎄 Que a magia do Natal ilumine todos os seus sonhos! A ${brandName} deseja a você e sua família um Natal repleto de paz, amor e união. Boas festas! 🎅✨`,
+      luxury: `🥂 Excelência e gratidão definem nosso ano. A ${brandName} deseja a você um Natal sofisticado e um brinde à vida e às novas conquistas. Feliz Natal! ✨⭐`,
+      cute: `🎁 Ho-ho-ho! Passando para deixar um abraço quentinho e desejar um Natal super especial. Que a alegria transborde! Com carinho, ${brandName} 🦌❤️`
+    };
+    return greetings[artStyle] || greetings.classic;
+  };
 
   const generate = async () => {
-    if (!name) return alert("Digite um nome!");
+    if (!name) return alert("Por favor, digite o nome!");
     setLoading(true);
     setImage(null);
+    setMessage('');
+
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -18,72 +33,65 @@ export default function NatalSaaS() {
         body: JSON.stringify({ name, style, fmt })
       });
       const data = await res.json();
-      if (data.url) setImage(data.url);
-      else alert("Erro ao gerar imagem.");
+      
+      if (data.url) {
+        setImage(data.url);
+        setMessage(getGreeting(name, style)); // Gera a mensagem aqui
+      } else {
+        alert("Erro ao gerar imagem. Verifique seus créditos na Nano Banana.");
+      }
     } catch (e) {
       alert("Erro na conexão.");
     }
     setLoading(false);
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(message);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans p-4">
-      <nav className="max-w-4xl mx-auto py-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-red-600">🎄 NatalMagic AI</h1>
+    <div className="min-h-screen bg-[#f8fafc] font-sans">
+      {/* Header Festivo */}
+      <nav className="bg-white border-b border-red-100 p-4 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="bg-red-600 p-2 rounded-lg text-white">
+              <Sparkles size={20} />
+            </div>
+            <h1 className="text-xl font-black text-slate-800 tracking-tight">NATAL<span className="text-red-600">MAGIC</span></h1>
+          </div>
+          <span className="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full">POWERED BY NANO BANANA</span>
+        </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 mt-10">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border">
-          <h2 className="text-xl font-bold mb-6 text-slate-800">Sua Arte de Natal Profissional</h2>
-          
-          <div className="space-y-4">
-            <input 
-              type="text" placeholder="Nome da Marca/Família" 
-              className="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-red-500"
-              onChange={(e) => setName(e.target.value)}
-            />
-
-            <select className="w-full p-4 border rounded-2xl outline-none" onChange={(e) => setStyle(e.target.value)}>
-              <option value="classic">Estilo Clássico</option>
-              <option value="luxury">Luxo e Ouro</option>
-              <option value="cute">Fofinho / Desenho</option>
-            </select>
-
-            <div className="flex gap-2">
-              <button onClick={() => setFmt('sq')} className={`flex-1 p-3 rounded-xl font-bold ${fmt === 'sq' ? 'bg-red-600 text-white' : 'bg-gray-100'}`}>Post</button>
-              <button onClick={() => setFmt('st')} className={`flex-1 p-3 rounded-xl font-bold ${fmt === 'st' ? 'bg-red-600 text-white' : 'bg-gray-100'}`}>Story</button>
-            </div>
-
-            <button 
-              onClick={generate} disabled={loading}
-              className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl hover:bg-green-700 transition disabled:opacity-50"
-            >
-              {loading ? "GERANDO..." : "CRIAR MINHA ARTE 🎁"}
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center">
-          <div className={`bg-white shadow-2xl rounded-2xl overflow-hidden flex items-center justify-center border-4 border-white ${fmt === 'st' ? 'w-[280px] h-[490px]' : 'w-[350px] h-[350px]'}`}>
-            {loading ? (
-              <div className="text-center p-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="font-bold text-slate-600 italic text-sm">A IA da Nano Banana está trabalhando...</p>
+      <main className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 p-6 md:py-12">
+        {/* Coluna Esquerda: Form */}
+        <div className="space-y-6">
+          <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Criador de Magia 🪄</h2>
+            <p className="text-slate-500 mb-8 text-sm">Crie posts profissionais para sua empresa em segundos.</p>
+            
+            <div className="space-y-5">
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Nome da Marca</label>
+                <input 
+                  type="text" placeholder="Ex: Padaria Central" 
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
-            ) : image ? (
-              <img src={image} className="w-full h-full object-cover animate-fade-in" />
-            ) : (
-              <p className="text-gray-400 font-medium">Sua arte aparecerá aqui</p>
-            )}
-          </div>
-          {image && (
-            <a href={image} target="_blank" className="mt-4 bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg">
-              Baixar em HD
-            </a>
-          )}
-        </div>
-      </main>
-      <script src="https://cdn.tailwindcss.com"></script>
-    </div>
-  );
-}
+
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Estilo Visual</label>
+                <select className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none cursor-pointer" onChange={(e) => setStyle(e.target.value)}>
+                  <option value="classic">🎄 Clássico Natalino</option>
+                  <option value="luxury">✨ Luxo e Ouro</option>
+                  <option value="cute">🦌 Fofinho / Kids</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={() => setFmt('sq')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'sq' ? 'bg-slate-800 text-white shadow-lg' : 'bg
