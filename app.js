@@ -1,3 +1,5 @@
+const NANO_BANANA_KEY = process.env.NANO_BANANA_KEY; // Ele pega do Railway
+const PORT = process.env.PORT || 3000; // Ele pega a porta do Railway
 const express = require('express');
 const app = express();
 const PORT = 3000;
