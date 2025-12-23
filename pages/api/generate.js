@@ -1,18 +1,17 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Apenas POST' });
 
-  // Recebe a frase dinâmica escolhida no frontend
-  const { name, style, fmt, dynamicPhrase } = req.body;
+  const { name, style, fmt, phrase } = req.body;
   const API_KEY = process.env.NANO_BANANA_KEY;
 
-  // Detalhes do estilo para o prompt
-  let styleDetails = "";
-  if (style === 'classic') styleDetails = "traditional cozy Christmas aesthetic, fireplace, red and green decorations, pine cones";
-  if (style === 'luxury') styleDetails = "luxurious, elegant gold and silver ornaments, sparkling bokeh lights, silk ribbons";
-  if (style === 'cute') styleDetails = "charming animated style, cute gingerbread house, soft pastel colors, snow";
+  if (!API_KEY) {
+    return res.status(500).json({ error: "Chave API não configurada na Vercel." });
+  }
 
-  // O Prompt Mágico: Pede uma moldura VAZIA no centro
-  const prompt = `A festive Christmas card background in ${styleDetails} style. In the center, there is an ornate Empty Picture Frame waiting for a photo. Below this frame, the text "FELIZ NATAL" and "${dynamicPhrase}" is written in elegant, high-quality typography. The name "${name}" is signed at the bottom. High resolution, 8k.`;
+  // Melhora o prompt para criar o espaço da foto
+  const styleText = style === 'luxury' ? "gold and black elegant" : style === 'cute' ? "3d clay cute" : "classic red green";
+  
+  const prompt = `A professional Christmas card background, ${styleText} style. IMPORTANT: Leave a clean empty square frame in the middle for a photo. Below the frame, write "FELIZ NATAL" and "${phrase}". Signed by "${name}". 8k resolution, festive lighting.`;
 
   try {
     const response = await fetch("https://api.nanobanana.com/v1/images/generations", {
@@ -23,7 +22,6 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         prompt: prompt,
-        model: "flux", // Tentamos usar o melhor modelo para texto
         size: fmt === 'st' ? "1024x1792" : "1024x1024",
         n: 1
       })
@@ -35,12 +33,9 @@ export default async function handler(req, res) {
     if (imageUrl) {
       res.status(200).json({ url: imageUrl });
     } else {
-      // Log para debug na Vercel se der erro
-      console.error("Erro Nano Banana:", data);
-      res.status(500).json({ error: "Falha ao gerar fundo.", detail: data });
+      res.status(500).json({ error: data.error?.message || "Erro na Nano Banana" });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erro interno no servidor." });
+    res.status(500).json({ error: "Erro de conexão com a API" });
   }
 }
