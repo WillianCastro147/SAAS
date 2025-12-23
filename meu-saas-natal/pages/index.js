@@ -94,4 +94,65 @@ export default function NatalSaaS() {
               </div>
 
               <div className="flex gap-3">
-                <button onClick={() => setFmt('sq')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'sq' ? 'bg-slate-800 text-white shadow-lg' : 'bg
+                <button onClick={() => setFmt('sq')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'sq' ? 'bg-slate-800 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-600'}`}>Post (1:1)</button>
+                <button onClick={() => setFmt('st')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'st' ? 'bg-slate-800 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-600'}`}>Story (9:16)</button>
+              </div>
+
+              <button 
+                onClick={generate} disabled={loading}
+                className="w-full bg-red-600 text-white py-5 rounded-[24px] font-black text-xl hover:bg-red-700 transition-all shadow-xl shadow-red-200 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-3"
+              >
+                {loading ? "PREPARANDO PRESENTES..." : "GERAR MINHA ARTE 🎁"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Coluna Direita: Preview */}
+        <div className="flex flex-col items-center">
+          <div className={`bg-slate-200 rounded-[2rem] overflow-hidden flex items-center justify-center relative border-[8px] border-white shadow-2xl transition-all duration-500 ${fmt === 'st' ? 'w-[300px] h-[533px]' : 'w-[400px] h-[400px]'}`}>
+            {loading ? (
+              <div className="text-center bg-white/80 backdrop-blur-md absolute inset-0 z-10 flex flex-col items-center justify-center p-6">
+                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="font-bold text-red-600 animate-pulse">A IA está criando sua arte...</p>
+              </div>
+            ) : null}
+
+            {image ? (
+              <img src={image} className="w-full h-full object-cover animate-in fade-in zoom-in duration-700" />
+            ) : (
+              <div className="text-slate-400 text-center p-8">
+                <p className="font-medium">Sua arte aparecerá aqui após o clique.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Seção da Mensagem Automática */}
+          {message && !loading && (
+            <div className="mt-8 w-full animate-in slide-in-from-bottom duration-500">
+              <div className="bg-green-50 border border-green-100 p-6 rounded-3xl relative group">
+                <h4 className="text-xs font-black text-green-700 uppercase mb-3 flex items-center gap-2">
+                  <Sparkles size={14} /> Legenda Sugerida
+                </h4>
+                <p className="text-slate-700 leading-relaxed italic">"{message}"</p>
+                <button 
+                  onClick={copyToClipboard}
+                  className="mt-4 flex items-center gap-2 bg-white text-green-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all active:scale-95"
+                >
+                  {copied ? <><Check size={16} /> Copiado!</> : <><Copy size={16} /> Copiar Texto</>}
+                </button>
+              </div>
+              
+              <a href={image} target="_blank" download className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all">
+                <Download size={20} /> Baixar Imagem HD
+              </a>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Tailwind via CDN para facilitar */}
+      <script src="https://cdn.tailwindcss.com"></script>
+    </div>
+  );
+}
