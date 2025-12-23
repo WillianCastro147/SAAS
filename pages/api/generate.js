@@ -4,14 +4,8 @@ export default async function handler(req, res) {
   const { name, style, fmt, phrase } = req.body;
   const API_KEY = process.env.NANO_BANANA_KEY;
 
-  if (!API_KEY) {
-    return res.status(500).json({ error: "Chave API não configurada na Vercel." });
-  }
-
-  // Melhora o prompt para criar o espaço da foto
-  const styleText = style === 'luxury' ? "gold and black elegant" : style === 'cute' ? "3d clay cute" : "classic red green";
-  
-  const prompt = `A professional Christmas card background, ${styleText} style. IMPORTANT: Leave a clean empty square frame in the middle for a photo. Below the frame, write "FELIZ NATAL" and "${phrase}". Signed by "${name}". 8k resolution, festive lighting.`;
+  const styleText = style === 'luxury' ? "gold elegant" : style === 'cute' ? "3d cartoon" : "classic christmas";
+  const prompt = `Christmas card background, ${styleText}, with a central square empty frame. Text: "FELIZ NATAL ${name.toUpperCase()}" and "${phrase}". 8k.`;
 
   try {
     const response = await fetch("https://api.nanobanana.com/v1/images/generations", {
@@ -33,9 +27,9 @@ export default async function handler(req, res) {
     if (imageUrl) {
       res.status(200).json({ url: imageUrl });
     } else {
-      res.status(500).json({ error: data.error?.message || "Erro na Nano Banana" });
+      res.status(500).json({ error: "Erro na Nano Banana" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Erro de conexão com a API" });
+    res.status(500).json({ error: "Erro de conexão" });
   }
 }
