@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Download, Sparkles } from 'lucide-react';
+import Head from 'next/head';
 
 export default function NatalSaaS() {
   const [name, setName] = useState('');
@@ -10,12 +10,11 @@ export default function NatalSaaS() {
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Função para gerar a legenda automática
   const getGreeting = (brandName, artStyle) => {
     const greetings = {
       classic: `🎄 Que a magia do Natal ilumine todos os seus sonhos! A ${brandName} deseja a você e sua família um Natal repleto de paz, amor e união. Boas festas! 🎅✨`,
-      luxury: `🥂 Excelência e gratidão definem nosso ano. A ${brandName} deseja a você um Natal sofisticado e um brinde à vida e às novas conquistas. Feliz Natal! ✨⭐`,
-      cute: `🎁 Ho-ho-ho! Passando para deixar um abraço quentinho e desejar um Natal super especial. Que a alegria transborde! Com carinho, ${brandName} 🦌❤️`
+      luxury: `🥂 Excelência e gratidão definem nosso ano. A ${brandName} deseja a você um Natal sofisticado e um brinde à vida. Feliz Natal! ✨⭐`,
+      cute: `🎁 Ho-ho-ho! Passando para deixar um abraço quentinho. Que a alegria transborde! Com carinho, ${brandName} 🦌❤️`
     };
     return greetings[artStyle] || greetings.classic;
   };
@@ -36,12 +35,12 @@ export default function NatalSaaS() {
       
       if (data.url) {
         setImage(data.url);
-        setMessage(getGreeting(name, style)); // Gera a mensagem aqui
+        setMessage(getGreeting(name, style));
       } else {
-        alert("Erro ao gerar imagem. Verifique seus créditos na Nano Banana.");
+        alert("Erro na Nano Banana. Verifique sua chave API nas configurações da Vercel.");
       }
     } catch (e) {
-      alert("Erro na conexão.");
+      alert("Erro de conexão. Tente novamente.");
     }
     setLoading(false);
   };
@@ -52,107 +51,63 @@ export default function NatalSaaS() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const shareWhatsApp = () => {
+    const text = encodeURIComponent(`${message} \n\nVeja minha arte: ${image}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans">
-      {/* Header Festivo */}
-      <nav className="bg-white border-b border-red-100 p-4 sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 text-slate-900 font-sans">
+      <Head>
+        <title>NatalMagic AI - Gerador de Artes</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </Head>
+
+      <nav className="bg-white border-b p-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="bg-red-600 p-2 rounded-lg text-white">
-              <Sparkles size={20} />
-            </div>
-            <h1 className="text-xl font-black text-slate-800 tracking-tight">NATAL<span className="text-red-600">MAGIC</span></h1>
-          </div>
-          <span className="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full">POWERED BY NANO BANANA</span>
+          <h1 className="text-xl font-black text-red-600 tracking-tighter">NATAL<span className="text-slate-800">MAGIC</span></h1>
+          <div className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200">API NANO BANANA ATIVA</div>
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 p-6 md:py-12">
-        {/* Coluna Esquerda: Form */}
-        <div className="space-y-6">
-          <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Criador de Magia 🪄</h2>
-            <p className="text-slate-500 mb-8 text-sm">Crie posts profissionais para sua empresa em segundos.</p>
-            
-            <div className="space-y-5">
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Nome da Marca</label>
-                <input 
-                  type="text" placeholder="Ex: Padaria Central" 
-                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Estilo Visual</label>
-                <select className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none cursor-pointer" onChange={(e) => setStyle(e.target.value)}>
-                  <option value="classic">🎄 Clássico Natalino</option>
-                  <option value="luxury">✨ Luxo e Ouro</option>
-                  <option value="cute">🦌 Fofinho / Kids</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3">
-                <button onClick={() => setFmt('sq')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'sq' ? 'bg-slate-800 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-600'}`}>Post (1:1)</button>
-                <button onClick={() => setFmt('st')} className={`flex-1 p-4 rounded-2xl font-bold transition-all ${fmt === 'st' ? 'bg-slate-800 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-600'}`}>Story (9:16)</button>
-              </div>
-
-              <button 
-                onClick={generate} disabled={loading}
-                className="w-full bg-red-600 text-white py-5 rounded-[24px] font-black text-xl hover:bg-red-700 transition-all shadow-xl shadow-red-200 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-3"
-              >
-                {loading ? "PREPARANDO PRESENTES..." : "GERAR MINHA ARTE 🎁"}
-              </button>
+      <main className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 p-6 py-10">
+        {/* Painel de Controle */}
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-100 h-fit">
+          <h2 className="text-2xl font-bold mb-2">Criar Arte 🎁</h2>
+          <p className="text-gray-500 text-sm mb-8">Insira os dados abaixo para gerar sua arte com IA.</p>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase">Sua Marca ou Nome</label>
+              <input 
+                type="text" placeholder="Ex: Café Estrela" 
+                className="w-full mt-1 p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
+
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase">Estilo da IA</label>
+              <select className="w-full mt-1 p-4 bg-gray-50 border rounded-2xl outline-none" onChange={(e) => setStyle(e.target.value)}>
+                <option value="classic">Clássico (Vermelho/Verde)</option>
+                <option value="luxury">Luxo (Dourado/Preto)</option>
+                <option value="cute">Fofo (Ilustração)</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={() => setFmt('sq')} className={`flex-1 py-3 rounded-xl font-bold border transition-all ${fmt === 'sq' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-gray-200'}`}>Feed (1:1)</button>
+              <button onClick={() => setFmt('st')} className={`flex-1 py-3 rounded-xl font-bold border transition-all ${fmt === 'st' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-gray-200'}`}>Story (9:16)</button>
+            </div>
+
+            <button 
+              onClick={generate} disabled={loading}
+              className="w-full bg-red-600 text-white py-5 rounded-[20px] font-black text-xl hover:bg-red-700 transition-all shadow-lg disabled:opacity-50"
+            >
+              {loading ? "GERANDO ARTE..." : "GERAR AGORA 🚀"}
+            </button>
           </div>
         </div>
 
-        {/* Coluna Direita: Preview */}
+        {/* Resultado */}
         <div className="flex flex-col items-center">
-          <div className={`bg-slate-200 rounded-[2rem] overflow-hidden flex items-center justify-center relative border-[8px] border-white shadow-2xl transition-all duration-500 ${fmt === 'st' ? 'w-[300px] h-[533px]' : 'w-[400px] h-[400px]'}`}>
-            {loading ? (
-              <div className="text-center bg-white/80 backdrop-blur-md absolute inset-0 z-10 flex flex-col items-center justify-center p-6">
-                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="font-bold text-red-600 animate-pulse">A IA está criando sua arte...</p>
-              </div>
-            ) : null}
-
-            {image ? (
-              <img src={image} className="w-full h-full object-cover animate-in fade-in zoom-in duration-700" />
-            ) : (
-              <div className="text-slate-400 text-center p-8">
-                <p className="font-medium">Sua arte aparecerá aqui após o clique.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Seção da Mensagem Automática */}
-          {message && !loading && (
-            <div className="mt-8 w-full animate-in slide-in-from-bottom duration-500">
-              <div className="bg-green-50 border border-green-100 p-6 rounded-3xl relative group">
-                <h4 className="text-xs font-black text-green-700 uppercase mb-3 flex items-center gap-2">
-                  <Sparkles size={14} /> Legenda Sugerida
-                </h4>
-                <p className="text-slate-700 leading-relaxed italic">"{message}"</p>
-                <button 
-                  onClick={copyToClipboard}
-                  className="mt-4 flex items-center gap-2 bg-white text-green-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all active:scale-95"
-                >
-                  {copied ? <><Check size={16} /> Copiado!</> : <><Copy size={16} /> Copiar Texto</>}
-                </button>
-              </div>
-              
-              <a href={image} target="_blank" download className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all">
-                <Download size={20} /> Baixar Imagem HD
-              </a>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Tailwind via CDN para facilitar */}
-      <script src="https://cdn.tailwindcss.com"></script>
-    </div>
-  );
-}
