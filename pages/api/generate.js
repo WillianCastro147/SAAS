@@ -4,8 +4,12 @@ export default async function handler(req, res) {
   const { name, style, fmt, phrase } = req.body;
   const API_KEY = process.env.NANO_BANANA_KEY;
 
-  const styleText = style === 'luxury' ? "gold elegant" : style === 'cute' ? "3d cartoon" : "classic christmas";
-  const prompt = `Christmas card background, ${styleText}, with a central square empty frame. Text: "FELIZ NATAL ${name.toUpperCase()}" and "${phrase}". 8k.`;
+  if (!API_KEY) return res.status(500).json({ error: "Chave API não configurada." });
+
+  const styleText = style === 'luxury' ? "elegant gold" : style === 'cute' ? "3d cartoon" : "classic red green";
+  
+  // Prompt focado em deixar espaço para a foto
+  const prompt = `Christmas background, ${styleText} style, central empty square frame for a photo. Text: "FELIZ NATAL ${name.toUpperCase()}" and "${phrase}". 8k.`;
 
   try {
     const response = await fetch("https://api.nanobanana.com/v1/images/generations", {
